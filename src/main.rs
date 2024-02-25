@@ -39,6 +39,13 @@ fn read_file(path: &str) -> Vec<u8> {
     }
 }
 
+fn is_valid_bf_op(c: u8) -> bool {
+    match c {
+        b'+' | b'-' | b'>' | b'<' | b'[' | b']' | b'.' | b',' => true,
+        _ => false
+    }
+}
+
 fn main() -> Result<(), String> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -50,6 +57,10 @@ fn main() -> Result<(), String> {
     let mut char_iter = file_contents.iter().enumerate().peekable();
 
     while let Some((_, &c)) = char_iter.next() {
+        if !is_valid_bf_op(c) {
+            continue;
+        }
+
         let mut token = Token::new(match c {
             b'+' => TokenKind::Inc,
             b'-' => TokenKind::Dec,
