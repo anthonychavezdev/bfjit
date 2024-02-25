@@ -55,7 +55,7 @@ fn main() -> Result<(), String> {
     }
 
     let file_contents = read_file(&args[1]);
-    let mut tokens = vec![];
+    let mut tokens: Vec<Token> = vec![];
     let mut char_iter = file_contents.iter().enumerate().peekable();
 
     while let Some((_, &c)) = char_iter.next() {
