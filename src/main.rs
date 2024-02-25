@@ -56,6 +56,7 @@ fn main() -> Result<(), String> {
 
     let file_contents = read_file(&args[1]);
     let mut tokens: Vec<Token> = vec![];
+    let mut stack: Vec<usize> = vec![];
     let mut char_iter = file_contents.iter().enumerate().peekable();
 
     while let Some((_, &c)) = char_iter.next() {
@@ -74,6 +75,22 @@ fn main() -> Result<(), String> {
             b',' => TokenKind::Input,
             _ => continue, // Ignore unrecognized characters
         });
+
+        if c == b'[' {
+            let len: usize = tokens.len();
+            stack.push(len + 1);
+        } else if c == b']' {
+            if stack.is_empty() {
+                eprintln!("unbalanced brackets!");
+                std::process::exit(3);
+            }
+            let len: usize = tokens.len();
+            let pop = stack.pop();
+            token.jumpAddr = pop.unwrap();
+            if let Some(v) = tokens.get_mut(token.jumpAddr - 1) {
+                v.jumpAddr = len + 1;
+            }
+        }
 
         // Count successive occurrences of the same character
         while let Some((_, &next_c)) = char_iter.peek() {
