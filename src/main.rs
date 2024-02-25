@@ -17,6 +17,7 @@ struct Token {
     kind: TokenKind,
     successive_count: usize,
     op: char,
+    jumpAddr: usize
 }
 
 impl Token {
@@ -25,6 +26,7 @@ impl Token {
             kind,
             successive_count: 1,
             op: ' ',
+            jumpAddr: 0
         }
     }
 }
