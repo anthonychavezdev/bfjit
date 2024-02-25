@@ -2,29 +2,40 @@ use std::{env, fs};
 
 #[derive(Debug)]
 enum TokenKind {
-    Right,
-    Left,
-    Inc,
-    Dec,
-    Output,
-    Input,
-    JumpIfZero,
-    JumpIfNZero
+    Right,       // >
+    Left,        // <
+    Inc,         // +
+    Dec,         // -
+    Output,      // .
+    Input,       // ,
+    JumpIfZero,  // [
+    JumpIfNZero, // ]
 }
 
 #[derive(Debug)]
 struct Token {
-    token_kind: TokenKind,
+    kind: TokenKind,
+    successive_count: usize,
+    op: char,
+}
+
+impl Token {
+    pub fn new(kind: TokenKind) -> Self {
+        Token {
+            kind,
+            successive_count: 1,
+            op: ' ',
+        }
+    }
 }
 
 fn read_file(path: &str) -> Vec<u8> {
-    let contents: Result<Vec<u8>, std::io::Error> = fs::read(path);
-    match contents {
+    match fs::read(path) {
         Ok(file) => file,
         Err(e) => {
-            eprintln!("Error opening file: {}", e.to_string());
+            eprintln!("Error opening file: {}", e);
             std::process::exit(2);
-        },
+        }
     }
 }
 
@@ -33,45 +44,38 @@ fn main() -> Result<(), String> {
     if args.len() < 2 {
         return Err("missing file operand".to_string());
     }
-    let file_contents: Vec<u8> = read_file(&args[1]);
-    let mut tokens: Vec<Token> = vec![];
-    for c in file_contents {
-        match c as char {
-            '+' => {
-                let token: Token = Token { token_kind: TokenKind::Inc };
-                tokens.push(token);
-            },
-            '-' => {
-                let token: Token = Token { token_kind: TokenKind::Dec };
-                tokens.push(token);
-            },
-            '>' => {
-                let token: Token = Token { token_kind: TokenKind::Right };
-                tokens.push(token);
-            },
-            '<' => {
-                let token: Token = Token { token_kind: TokenKind::Left };
-                tokens.push(token);
-            },
-            '[' => {
-                let token: Token = Token { token_kind: TokenKind::JumpIfZero };
-                tokens.push(token);
-            },
-            ']' => {
-                let token: Token = Token { token_kind: TokenKind::JumpIfNZero };
-                tokens.push(token);
-            },
-            '.' => {
-                let token: Token = Token { token_kind: TokenKind::Output };
-                tokens.push(token);
+
+    let file_contents = read_file(&args[1]);
+    let mut tokens = vec![];
+    let mut char_iter = file_contents.iter().enumerate().peekable();
+
+    while let Some((_, &c)) = char_iter.next() {
+        let mut token = Token::new(match c {
+            b'+' => TokenKind::Inc,
+            b'-' => TokenKind::Dec,
+            b'>' => TokenKind::Right,
+            b'<' => TokenKind::Left,
+            b'[' => TokenKind::JumpIfZero,
+            b']' => TokenKind::JumpIfNZero,
+            b'.' => TokenKind::Output,
+            b',' => TokenKind::Input,
+            _ => continue, // Ignore unrecognized characters
+        });
+
+        // Count successive occurrences of the same character
+        while let Some((_, &next_c)) = char_iter.peek() {
+            if next_c == c {
+                token.successive_count += 1;
+                char_iter.next();
+            } else {
+                break;
             }
-            ',' => {
-                let token: Token = Token { token_kind: TokenKind::Input };
-                tokens.push(token);
-            }
-            _ => {}
         }
+
+        token.op = c as char;
+        tokens.push(token);
     }
+
     dbg!(tokens);
     Ok(())
 }
