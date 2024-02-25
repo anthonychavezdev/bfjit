@@ -106,6 +106,8 @@ fn main() -> Result<(), String> {
         tokens.push(token);
     }
 
-    dbg!(tokens);
+    for (idx, v) in tokens.iter().enumerate() {
+        println!("{}: {} Jump: {}", idx, v.op as char, v.jumpAddr);
+    }
     Ok(())
 }
