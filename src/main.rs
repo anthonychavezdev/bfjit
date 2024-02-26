@@ -103,13 +103,63 @@ fn main() -> Result<(), String> {
                 }
             }
         }
-
         token.op = c as char;
         tokens.push(token);
     }
 
     for (idx, v) in tokens.iter().enumerate() {
-        println!("{}: {} Jump: {}", idx, v.op as char, v.jumpAddr);
+        println!("{}: {} ({}) Jump: {}", idx, v.op as char, v.successive_count, v.jump_addr);
     }
+
+    let mut memory: [u8; 65536] = [0; 65536]; // u16 max + 1
+    let mut pc: usize = 0;
+    let mut idx: u16 = 0;
+
+    let len: usize = tokens.len();
+    while pc < len {
+        let v: &Token = &tokens[pc];
+        match v.kind {
+            TokenKind::Right => {
+                idx = idx.wrapping_add(v.successive_count as u16);
+                pc += 1;
+            }
+            TokenKind::Left => {
+                idx = idx.wrapping_sub(v.successive_count as u16);
+                pc += 1;
+            }
+            TokenKind::Inc => {
+                memory[idx as usize] = memory[idx as usize].wrapping_add(v.successive_count as u8);
+                pc += 1;
+            }
+            TokenKind::Dec => {
+                memory[idx as usize] = memory[idx as usize].wrapping_sub(v.successive_count as u8);
+                pc += 1;
+            }
+            TokenKind::Output => {
+                for _ in 0..v.successive_count {
+                    print!("{}", memory[idx as usize] as char);
+                }
+                pc += 1;
+            }
+            TokenKind::Input => {
+                todo!();
+            }
+            TokenKind::JumpIfZero => {
+                if memory[idx as usize] == 0 {
+                    pc = v.jump_addr;
+                } else {
+                    pc += 1;
+                }
+            }
+            TokenKind::JumpIfNZero => {
+                if memory[idx as usize] != 0 {
+                    pc = v.jump_addr;
+                } else {
+                    pc += 1;
+                }
+            }
+        }
+    }
+
     Ok(())
 }
