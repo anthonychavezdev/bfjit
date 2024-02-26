@@ -107,10 +107,6 @@ fn main() -> Result<(), String> {
         tokens.push(token);
     }
 
-    for (idx, v) in tokens.iter().enumerate() {
-        println!("{}: {} ({}) Jump: {}", idx, v.op as char, v.successive_count, v.jump_addr);
-    }
-
     let mut memory: [u8; 65536] = [0; 65536]; // u16 max + 1
     let mut pc: usize = 0;
     let mut idx: u16 = 0;
