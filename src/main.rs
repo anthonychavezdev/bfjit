@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, fs, io::{stdin, Read}};
 
 #[derive(Debug)]
 enum TokenKind {
@@ -142,7 +142,11 @@ fn main() -> Result<(), String> {
                 pc += 1;
             }
             TokenKind::Input => {
-                todo!();
+                println!("Awaiting input...");
+                let mut input: [u8; 1] = [0; 1];
+                stdin().read_exact(&mut input).expect("ERROR: reading input");
+                memory[idx as usize] = input[0];
+                pc += 1;
             }
             TokenKind::JumpIfZero => {
                 if memory[idx as usize] == 0 {
