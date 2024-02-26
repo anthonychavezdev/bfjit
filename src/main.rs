@@ -15,9 +15,9 @@ enum TokenKind {
 #[derive(Debug)]
 struct Token {
     kind: TokenKind,
-    successive_count: usize,
+    successive_count: u16,
     op: char,
-    jumpAddr: usize
+    jump_addr: usize
 }
 
 impl Token {
@@ -26,7 +26,7 @@ impl Token {
             kind,
             successive_count: 1,
             op: ' ',
-            jumpAddr: 0
+            jump_addr: 0
         }
     }
 }
@@ -59,7 +59,7 @@ fn main() -> Result<(), String> {
     let mut stack: Vec<usize> = vec![];
     let mut char_iter = file_contents.iter().enumerate().peekable();
 
-    while let Some((_, &c)) = char_iter.next() {
+    while let Some((idx, &c)) = char_iter.next() {
         if !is_valid_bf_op(c) {
             continue;
         }
@@ -81,24 +81,26 @@ fn main() -> Result<(), String> {
             stack.push(len + 1);
         } else if c == b']' {
             if stack.is_empty() {
-                eprintln!("unbalanced brackets!");
+                eprintln!("unbalanced brackets! pos: {}", idx);
                 std::process::exit(3);
             }
             let len: usize = tokens.len();
             let pop = stack.pop();
-            token.jumpAddr = pop.unwrap();
-            if let Some(v) = tokens.get_mut(token.jumpAddr - 1) {
-                v.jumpAddr = len + 1;
+            token.jump_addr = pop.unwrap();
+            if let Some(v) = tokens.get_mut(token.jump_addr - 1) {
+                v.jump_addr = len + 1;
             }
         }
 
-        // Count successive occurrences of the same character
-        while let Some((_, &next_c)) = char_iter.peek() {
-            if next_c == c {
-                token.successive_count += 1;
-                char_iter.next();
-            } else {
-                break;
+        if c != b'[' && c != b']' {
+            // Count successive occurrences of the same character
+            while let Some((_, &next_c)) = char_iter.peek() {
+                if next_c == c {
+                    token.successive_count += 1;
+                    char_iter.next();
+                } else {
+                    break;
+                }
             }
         }
 
