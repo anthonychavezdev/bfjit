@@ -16,7 +16,6 @@ enum TokenKind {
 struct Token {
     kind: TokenKind,
     successive_count: u16,
-    op: char,
     jump_addr: usize
 }
 
@@ -25,7 +24,6 @@ impl Token {
         Token {
             kind,
             successive_count: 1,
-            op: ' ',
             jump_addr: 0
         }
     }
@@ -103,7 +101,6 @@ fn main() -> Result<(), String> {
                 }
             }
         }
-        token.op = c as char;
         tokens.push(token);
     }
 
