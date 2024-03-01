@@ -2,21 +2,20 @@ use std::{env, fs, io::{stdin, Read}};
 
 #[derive(Debug)]
 enum TokenKind {
-    Right,       // >
-    Left,        // <
-    Inc,         // +
-    Dec,         // -
-    Output,      // .
-    Input,       // ,
-    JumpIfZero,  // [
-    JumpIfNZero, // ]
+    Right,              // >
+    Left,               // <
+    Inc,                // +
+    Dec,                // -
+    Output,             // .
+    Input,              // ,
+    JumpIfZero(usize),  // [
+    JumpIfNZero(usize), // ]
 }
 
 #[derive(Debug)]
 struct Token {
     kind: TokenKind,
     successive_count: u16,
-    jump_addr: usize
 }
 
 impl Token {
@@ -24,7 +23,6 @@ impl Token {
         Token {
             kind,
             successive_count: 1,
-            jump_addr: 0
         }
     }
 }
@@ -67,28 +65,29 @@ fn main() -> Result<(), String> {
             b'-' => TokenKind::Dec,
             b'>' => TokenKind::Right,
             b'<' => TokenKind::Left,
-            b'[' => TokenKind::JumpIfZero,
-            b']' => TokenKind::JumpIfNZero,
+            b'[' => {
+                let current_address = tokens.len();
+                    stack.push(current_address + 1);
+                // The 0 will be replaced when we find a ']'
+                TokenKind::JumpIfZero(0)
+            },
+            b']' => {
+                let jump_to_address: usize = tokens.len();
+                match stack.pop() {
+                    Some(address) => {
+                        tokens[address-1] = Token::new(TokenKind::JumpIfZero(jump_to_address + 1));
+                        TokenKind::JumpIfNZero(address)
+                    }
+                    None => {
+                        eprintln!("unbalanced brackets! pos: {}", idx);
+                        std::process::exit(3);
+                    }
+                }
+            },
             b'.' => TokenKind::Output,
             b',' => TokenKind::Input,
             _ => continue, // Ignore unrecognized characters
         });
-
-        if c == b'[' {
-            let len: usize = tokens.len();
-            stack.push(len + 1);
-        } else if c == b']' {
-            if stack.is_empty() {
-                eprintln!("unbalanced brackets! pos: {}", idx);
-                std::process::exit(3);
-            }
-            let len: usize = tokens.len();
-            let pop = stack.pop();
-            token.jump_addr = pop.unwrap();
-            if let Some(v) = tokens.get_mut(token.jump_addr - 1) {
-                v.jump_addr = len + 1;
-            }
-        }
 
         if c != b'[' && c != b']' {
             // Count successive occurrences of the same character
@@ -141,16 +140,16 @@ fn main() -> Result<(), String> {
                 memory[idx as usize] = input[0];
                 pc += 1;
             }
-            TokenKind::JumpIfZero => {
+            TokenKind::JumpIfZero(address) => {
                 if memory[idx as usize] == 0 {
-                    pc = v.jump_addr;
+                    pc = address;
                 } else {
                     pc += 1;
                 }
             }
-            TokenKind::JumpIfNZero => {
+            TokenKind::JumpIfNZero(address) => {
                 if memory[idx as usize] != 0 {
-                    pc = v.jump_addr;
+                    pc = address;
                 } else {
                     pc += 1;
                 }
