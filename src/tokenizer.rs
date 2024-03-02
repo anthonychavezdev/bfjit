@@ -47,6 +47,7 @@ impl Token {
 
 }
 
+#[inline]
 fn is_valid_bf_op(c: u8) -> bool {
     match c {
         b'+' | b'-' | b'>' | b'<' | b'[' | b']' | b'.' | b',' => true,
@@ -55,8 +56,8 @@ fn is_valid_bf_op(c: u8) -> bool {
 }
 
 pub fn tokenize(file_contents: &Vec<u8>) -> Result<Vec<Token>> {
-    let mut tokens: Vec<Token> = vec![];
-    let mut stack: Vec<usize> = vec![];
+    let mut tokens: Vec<Token> = Vec::with_capacity(file_contents.len());
+    let mut stack: Vec<usize> = Vec::with_capacity(file_contents.len());
     let mut char_iter = file_contents.iter().enumerate().peekable();
     let mut file_offset: usize = 0;
     while let Some((idx, &c)) = char_iter.next() {
