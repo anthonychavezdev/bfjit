@@ -21,7 +21,12 @@ fn main() -> Result<(), String> {
     }
 
     let file: Vec<u8> = open_file(&args[1]);
-    let tokens: Vec<Token> = tokenizer::tokenize(&file);
+    let tokens: Vec<Token> = match tokenizer::tokenize(&file) {
+        Ok(t) => t,
+        Err(e) => {
+            return Err(e.to_string());
+        }
+    };
     interpreter::run(tokens);
     Ok(())
 }
