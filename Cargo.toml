@@ -8,4 +8,5 @@ edition = "2021"
 [profile.release]
 strip = true
 codegen-units = 1
+panic = "abort"
 [dependencies]
