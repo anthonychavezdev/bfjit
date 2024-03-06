@@ -28,6 +28,10 @@ fn main() -> Result<(), String> {
             return Err(e.to_string());
         }
     };
-    interpreter::run(tokens);
+
+    if let Err(e) = interpreter::run(tokens) {
+        eprintln!("error during program execution");
+        return Err(e.to_string());
+    };
     Ok(())
 }

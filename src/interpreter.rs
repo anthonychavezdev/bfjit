@@ -1,10 +1,11 @@
 use std::io::Read;
 use std::io::stdin;
+use std::io::Error;
 use crate::TokenKind;
 use crate::Token;
 
 #[inline(always)]
-pub fn run(tokens: Vec<Token>) {
+pub fn run(tokens: Vec<Token>) -> Result<(), Error> {
     let mut memory: [u8; 65536] = [0; 65536]; // u16 max + 1
     let mut pc: usize = 0;
     let mut idx: u16 = 0;
@@ -39,8 +40,10 @@ pub fn run(tokens: Vec<Token>) {
             TokenKind::Input => {
                 println!("Awaiting input...");
                 let mut input: [u8; 1] = [0; 1];
-                stdin().read_exact(&mut input).expect("ERROR: reading input");
-                memory[idx as usize] = input[0];
+                match stdin().read_exact(&mut input) {
+                    Ok(_) => memory[idx as usize] = input[0],
+                    Err(e) => return Err(e),
+                }
                 pc += 1;
             }
             TokenKind::JumpIfZero(address) => {
@@ -59,5 +62,5 @@ pub fn run(tokens: Vec<Token>) {
             }
         }
     }
-
+    Ok(())
 }
