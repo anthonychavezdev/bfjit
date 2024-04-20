@@ -42,7 +42,7 @@ impl Token {
     }
 
     pub fn get_successive_count(&self) -> u16 {
-        self.successive_count.clone()
+        self.successive_count
     }
 
 }
