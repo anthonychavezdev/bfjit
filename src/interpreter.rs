@@ -15,11 +15,11 @@ pub fn run(tokens: Vec<Token>) -> Result<(), Error> {
         let v: &Token = &tokens[pc];
         match v.get_token_type() {
             TokenKind::Right => {
-                idx = idx.wrapping_add(v.get_successive_count() as u16);
+                idx = idx.wrapping_add(v.get_successive_count());
                 pc += 1;
             }
             TokenKind::Left => {
-                idx = idx.wrapping_sub(v.get_successive_count() as u16);
+                idx = idx.wrapping_sub(v.get_successive_count());
                 pc += 1;
             }
             TokenKind::Inc => {
