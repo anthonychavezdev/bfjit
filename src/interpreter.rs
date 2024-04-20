@@ -1,8 +1,8 @@
-use std::io::Read;
+use crate::Token;
+use crate::TokenKind;
 use std::io::stdin;
 use std::io::Error;
-use crate::TokenKind;
-use crate::Token;
+use std::io::Read;
 
 #[inline(always)]
 pub fn run(tokens: Vec<Token>) -> Result<(), Error> {
