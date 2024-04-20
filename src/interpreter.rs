@@ -6,7 +6,8 @@ use std::io::Read;
 
 #[inline(always)]
 pub fn run(tokens: Vec<Token>) -> Result<(), Error> {
-    let mut memory: [u8; 65536] = [0; 65536]; // u16 max + 1
+    const MEM_SIZE: usize = 65536;
+    let mut memory: [u8; MEM_SIZE] = [0; MEM_SIZE]; // u16 max + 1
     let mut pc: usize = 0;
     let mut idx: u16 = 0;
 
