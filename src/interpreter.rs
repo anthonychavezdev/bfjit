@@ -23,11 +23,13 @@ pub fn run(tokens: Vec<Token>) -> Result<(), Error> {
                 pc += 1;
             }
             TokenKind::Inc => {
-                memory[idx as usize] = memory[idx as usize].wrapping_add(v.get_successive_count() as u8);
+                memory[idx as usize] =
+                    memory[idx as usize].wrapping_add(v.get_successive_count() as u8);
                 pc += 1;
             }
             TokenKind::Dec => {
-                memory[idx as usize] = memory[idx as usize].wrapping_sub(v.get_successive_count() as u8);
+                memory[idx as usize] =
+                    memory[idx as usize].wrapping_sub(v.get_successive_count() as u8);
                 pc += 1;
             }
             TokenKind::Output => {

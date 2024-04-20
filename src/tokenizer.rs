@@ -18,7 +18,7 @@ pub struct Token {
 
 pub struct UnbalancedBracketsError {
     c: char,
-    offset: usize
+    offset: usize,
 }
 type Result<T> = std::result::Result<T, UnbalancedBracketsError>;
 
@@ -28,14 +28,13 @@ impl fmt::Display for UnbalancedBracketsError {
     }
 }
 
-
 impl Token {
     fn new(kind: TokenKind) -> Self {
         Token {
             kind,
             successive_count: 1,
         }
-    }    
+    }
 
     pub fn get_token_type(&self) -> &TokenKind {
         &self.kind
@@ -44,14 +43,13 @@ impl Token {
     pub fn get_successive_count(&self) -> u16 {
         self.successive_count
     }
-
 }
 
 #[inline]
 fn is_valid_bf_op(c: u8) -> bool {
     match c {
         b'+' | b'-' | b'>' | b'<' | b'[' | b']' | b'.' | b',' => true,
-        _ => false
+        _ => false,
     }
 }
 
@@ -76,20 +74,24 @@ pub fn tokenize(file_contents: &Vec<u8>) -> Result<Vec<Token>> {
                 stack.push(current_address + 1);
                 // The 0 will be replaced when we find a ']'
                 TokenKind::JumpIfZero(0)
-            },
+            }
             b']' => {
                 file_offset = idx;
                 let jump_to_address: usize = tokens.len();
                 match stack.pop() {
                     Some(address) => {
-                        tokens[address-1] = Token::new(TokenKind::JumpIfZero(jump_to_address + 1));
+                        tokens[address - 1] =
+                            Token::new(TokenKind::JumpIfZero(jump_to_address + 1));
                         TokenKind::JumpIfNZero(address)
                     }
                     None => {
-                        return Err(UnbalancedBracketsError { c: ']', offset: file_offset});
+                        return Err(UnbalancedBracketsError {
+                            c: ']',
+                            offset: file_offset,
+                        });
                     }
                 }
-            },
+            }
             b'.' => TokenKind::Output,
             b',' => TokenKind::Input,
             _ => continue, // Ignore unrecognized characters
@@ -108,8 +110,11 @@ pub fn tokenize(file_contents: &Vec<u8>) -> Result<Vec<Token>> {
         }
         tokens.push(token);
     }
-    if let Some(_) = stack.pop() {
-        return Err(UnbalancedBracketsError { c: '[', offset: file_offset});
+    if stack.pop().is_some() {
+        return Err(UnbalancedBracketsError {
+            c: '[',
+            offset: file_offset,
+        });
     }
     Ok(tokens)
 }

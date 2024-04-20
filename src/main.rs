@@ -19,7 +19,7 @@ fn main() -> Result<(), String> {
         Ok(f) => f,
         Err(e) => {
             eprintln!("Error opening file\n");
-            return Err(e.to_string())
+            return Err(e.to_string());
         }
     };
     let tokens: Vec<Token> = match tokenizer::tokenize(&file) {
