@@ -1,8 +1,9 @@
 use crate::tokenizer::{Token, TokenKind};
 use std::{env, fs};
 
-mod tokenizer;
 mod interpreter;
+mod jit_compiler;
+mod tokenizer;
 
 #[inline]
 fn open_file(path: &str) -> Result<Vec<u8>, std::io::Error> {
@@ -29,9 +30,15 @@ fn main() -> Result<(), String> {
         }
     };
 
-    if let Err(e) = interpreter::run(tokens) {
+    // if let Err(e) = interpreter::run(tokens) {
+    //     eprintln!("error during program execution");
+    //     return Err(e.to_string());
+    // };
+
+    if let Err(e) = jit_compiler::run(tokens) {
         eprintln!("error during program execution");
         return Err(e.to_string());
-    };
+    }
+
     Ok(())
 }
