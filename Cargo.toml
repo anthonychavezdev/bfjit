@@ -10,3 +10,4 @@ strip = true
 codegen-units = 1
 panic = "abort"
 [dependencies]
+memmap2 = "0.9.4"
