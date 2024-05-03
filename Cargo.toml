@@ -10,4 +10,5 @@ strip = true
 codegen-units = 1
 panic = "abort"
 [dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
 memmap2 = "0.9.4"
